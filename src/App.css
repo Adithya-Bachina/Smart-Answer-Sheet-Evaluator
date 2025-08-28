@@ -1,38 +1,161 @@
-.App {
-  text-align: center;
+/* ---------------- GLOBAL BACKGROUND ---------------- */
+body {
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(-45deg, #f0f4f8, #e6f0ff, #ffffff, #eef7ff);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  overflow-x: hidden;
+  margin: 0;
+  color: #333;
+  position: relative;
 }
 
-.App-logo {
-  height: 40vmin;
+/* -------- NAVBAR -------- */
+.navbar {
+  background: #ffffffcc;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(6px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0px 4px 20px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+.navbar:hover {
+  background: #fff;
+}
+.nav-logo {
+  color: #007bff;
+  font-size: 26px;
+  font-weight: bold;
+  transition: transform 0.3s ease-in-out;
+}
+.nav-logo.glow:hover {
+  text-shadow: 0 0 10px #007bff, 0 0 20px #66aaff;
+  transform: scale(1.2);
+}
+.nav-links {
+  list-style-type: none;
+  display: flex;
+  gap: 20px;
+}
+.nav-links a {
+  text-decoration: none;
+  color: #444;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+  transition: 0.3s;
+}
+.nav-links a:hover {
+  color: #007bff;
+}
+
+/* Ripple hover effect */
+.ripple {
+  position: relative;
+}
+.ripple:after {
+  content: "";
+  position: absolute;
+  width: 120%;
+  height: 120%;
+  background: rgba(0,123,255,0.15);
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: 0.4s;
+}
+.ripple:hover:after {
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+/* -------- BACKGROUND MOVING OBJECTS -------- */
+.background-objects {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
   pointer-events: none;
+  overflow: hidden;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Each emoji object */
+.background-objects .object {
+  position: absolute;
+  font-size: 2.5rem;
+  opacity: 0.12;
+  animation: drift linear infinite;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* Random starting positions + speeds */
+.background-objects .object:nth-child(1) { top: 10%; left: -5%;  animation-duration: 25s; }
+.background-objects .object:nth-child(2) { top: 30%; left: -10%; animation-duration: 35s; }
+.background-objects .object:nth-child(3) { top: 60%; left: -8%;  animation-duration: 40s; }
+.background-objects .object:nth-child(4) { top: 20%; left: -12%; animation-duration: 28s; }
+.background-objects .object:nth-child(5) { top: 75%; left: -7%;  animation-duration: 32s; }
+.background-objects .object:nth-child(6) { top: 50%; left: -15%; animation-duration: 38s; }
+.background-objects .object:nth-child(7) { top: 85%; left: -20%; animation-duration: 30s; }
+
+/* Objects drifting across horizontally */
+@keyframes drift {
+  0%   { transform: translateX(0)   translateY(0) rotate(0deg); }
+  50%  { transform: translateX(60vw) translateY(-30px) rotate(25deg); }
+  100% { transform: translateX(120vw) translateY(0px) rotate(-15deg); }
+}
+
+/* -------- PAGE ENTRANCE ANIMATION -------- */
+.animate-page {
+  animation: fadeSlideIn 0.8s ease both;
+}
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* -------- LOADER (flipping book) -------- */
+.book-loader {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  padding: 40px;
+  animation: fadeSlideIn 1s;
+}
+.book-loader span {
+  font-size: 64px;
+  display: inline-block;
+  animation: flipBook 1s infinite alternate ease-in-out;
+}
+.book-loader p {
+  margin-top: 15px;
+  font-size: 18px;
+  color: #007bff;
+}
+@keyframes flipBook {
+  from { transform: rotateY(0deg); }
+  to   { transform: rotateY(180deg); }
 }
 
-.App-link {
-  color: #61dafb;
+/* -------- FOOTER WAVE TEXT -------- */
+.wave-text p {
+  display: inline-block;
+  animation: wave 2s infinite ease-in-out;
+}
+@keyframes wave {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-5px); }
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* -------- BACKGROUND GRADIENT -------- */
+@keyframes gradientBG {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
