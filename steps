@@ -1,0 +1,168 @@
+Exam Evaluation System – Backend Documentation
+1️⃣ Overview
+
+This backend evaluates student answer scripts against a key paper using:
+
+Google Vision API – OCR for handwritten answer scripts.
+
+Python-docx – Extract answers from key paper.
+
+Sentence Transformers – Semantic similarity for grading.
+
+The backend exposes a REST API (/evaluate) which your frontend can call to get the scorecard.
+
+2️⃣ Folder Structure
+exam-evaluation-backend/
+│
+├── app.py                   # Flask backend (main file)
+├── requirements.txt         # Python dependencies
+├── pro-kayak.json         # Google Vision API pro-kayak
+└── README.md                # This documentation
+
+3️⃣ Prerequisites
+
+Python 3.10+ installed.
+
+Google Cloud Vision API credentials JSON (credentials.json) from Google Cloud.
+
+React frontend ready to send files via POST.
+
+Internet connection (for downloading Sentence Transformers model).
+
+4️⃣ Installation Steps
+Step 1: Clone backend folder
+git clone <your-repo-url>
+cd exam-evaluation-backend
+
+Step 2: Install dependencies
+pip install -r requirements.txt
+
+Step 3: Set Google Vision credentials
+
+Option 1 – Using file (simplest):
+
+credentials = service_account.Credentials.from_service_account_file("credentials.json")
+
+
+Option 2 – Using environment variable (recommended for production):
+
+export GOOGLE_VISION_JSON='<content-of-json>'
+
+credentials_info = json.loads(os.environ["GOOGLE_VISION_JSON"])
+credentials = service_account.Credentials.from_service_account_info(credentials_info)
+
+5️⃣ Run the Backend Locally
+python app.py
+
+
+Backend will run on: http://localhost:5000
+
+Endpoint: POST /evaluate
+
+6️⃣ API Usage
+
+Endpoint: /evaluate
+Method: POST
+Request Type: multipart/form-data
+
+Form Data Keys:
+
+Key	Type	Description
+answer_script	File	Student answer script image
+key_paper	File	Key paper document (.docx)
+
+Example Request (React/JS):
+
+const formData = new FormData();
+formData.append("answer_script", answerFile);
+formData.append("key_paper", keyFile);
+
+fetch("http://localhost:5000/evaluate", {
+  method: "POST",
+  body: formData
+})
+.then(res => res.json())
+.then(data => {
+    console.log(data);
+    // Render scorecard in frontend
+});
+
+7️⃣ API Response
+{
+  "results": {
+    "Q1": {
+      "key_answer": "Photosynthesis is the process...",
+      "student_answer": "Photosynthesis is when plants...",
+      "similarity": 0.92,
+      "marks_obtained": 5,
+      "max_marks": 5
+    },
+    "Q2": {
+      "key_answer": "...",
+      "student_answer": "...",
+      "similarity": 0.78,
+      "marks_obtained": 3,
+      "max_marks": 5
+    }
+  },
+  "total_marks": 8,
+  "max_total": 10
+}
+
+
+Explanation:
+
+results: Each question with student answer, key answer, similarity, and marks.
+
+total_marks: Total marks obtained by student.
+
+max_total: Total possible marks.
+
+8️⃣ Key Python Functions
+Function	Description
+detect_text(file)	Performs OCR on student answer script using Google Vision.
+clean_text(raw_text)	Cleans whitespace and line breaks from OCR text.
+extract_key_answers(file)	Extracts answers from DOCX key paper. Assumes Q1., Q2., etc.
+evaluate(student_text, key_answers)	Computes semantic similarity and assigns marks.
+9️⃣ Deployment Steps
+Option A: Deploy on Render/Heroku
+
+Push backend folder to GitHub.
+
+Create a new Python service on Render/Heroku.
+
+Set environment variables or include credentials.json.
+
+Deploy — backend will be accessible via public URL.
+
+Update frontend to point to backend URL.
+
+Option B: Docker Deployment
+
+Create Dockerfile:
+
+FROM python:3.10-slim
+WORKDIR /app
+COPY . /app
+RUN pip install --no-cache-dir -r requirements.txt
+EXPOSE 5000
+CMD ["python", "app.py"]
+
+
+Build and run Docker container:
+
+docker build -t exam-backend .
+docker run -p 5000:5000 exam-backend
+
+
+Update frontend API URL to point to deployed container.
+
+10️⃣ Notes / Best Practices
+
+Security: Keep credentials.json private. Use environment variables for production.
+
+File Size: OCR works best with clear images (≤5MB recommended).
+
+Scalability: For multiple users, consider async endpoints (FastAPI) or queuing OCR jobs.
+
+Error Handling: API returns 400 if files are missing, other errors propagate as JSON messages.
